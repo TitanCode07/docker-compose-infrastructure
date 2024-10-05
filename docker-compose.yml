@@ -1,29 +1,37 @@
 version: '3.8'
 
 services:
-  user_service:
-    build: ./microservice-users
+  service_users:
+    build: ../service_users
     ports:
       - "8001:8001"
     networks:
       - app-network
 
-  finance_service:
-    build: ./insurance-market-statistics
+    environment:
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - PUBLIC_KEY=${PUBLIC_KEY}
+      - DATABASE_URL=postgresql://postgres:3919305001@192.168.100.200:5432/dbfastapi
+
+  service_finance:
+    build: ../service_finance
     ports:
       - "8000:8000"
     networks:
       - app-network
 
-  api_gateway:
+    environment:
+      - PUBLIC_KEY=${PUBLIC_KEY}
+
+  API_GATEWAY:
     image: nginx:latest
     volumes:
-      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf
+      - ../API_GATEWAY/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
     depends_on:
-      - user_service
-      - finance_service
+      - service_users
+      - service_finance
     networks:
       - app-network
 
